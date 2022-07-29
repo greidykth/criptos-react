@@ -22,8 +22,14 @@ const InputSubmit = styled.input`
   }
 `;
 
-const Formulario = ({setMonedas, error, setError, message, setMessage, setResultado}) => {
-
+const Formulario = ({
+  setMonedas,
+  error,
+  setError,
+  message,
+  setMessage,
+  setResultado,
+}) => {
   const monedas = [
     { id: "USD", name: "Dolar de Estados Unidos" },
     { id: "MXN", name: "Peso Mexicano" },
@@ -32,7 +38,6 @@ const Formulario = ({setMonedas, error, setError, message, setMessage, setResult
   ];
 
   const [criptos, setCriptos] = useState([]);
-  
 
   const [moneda, SelectMonedas] = useSelectMonedas("Elige tu moneda", monedas);
   const [criptomoneda, SelectCriptomoneda] = useSelectMonedas(
@@ -41,34 +46,28 @@ const Formulario = ({setMonedas, error, setError, message, setMessage, setResult
   );
 
   useEffect(() => {
-    const consultarAPI = async () => {
-      const url =
-        "https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD";
-    try{
-        const respuesta = await fetch(url);
-        const resultado = await respuesta.json();
+    const url =
+      "https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD";
 
+    fetch(url)
+      .then((response) => response.json())
+      .then((resultado) => {
         const arrayCriptos = resultado.Data.map((cripto) => {
-            return {
-                id: cripto.CoinInfo.Name,
-                name: cripto.CoinInfo.FullName,
-              };
-          });
-          setCriptos(arrayCriptos);
-
-    } catch (error){
+          return {
+            id: cripto.CoinInfo.Name,
+            name: cripto.CoinInfo.FullName,
+          };
+        });
+        setCriptos(arrayCriptos);
+        setError(false);
+        setMessage("");
+      })
+      .catch((error) => {
         console.log(error);
         setError(true);
-        setMessage("Error al cargar lista de criptomonedas")
-    }
-    }
-   
-    consultarAPI();
-    setError(false)
-    setMessage("");
-
+        setMessage("Error al cargar lista de criptomonedas");
+      });
   }, []);
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -83,15 +82,14 @@ const Formulario = ({setMonedas, error, setError, message, setMessage, setResult
     setMessage("");
 
     setMonedas({
-        moneda, 
-        criptomoneda
-        });
+      moneda,
+      criptomoneda,
+    });
   };
-
 
   return (
     <>
-      {error && <Error message={message}/>}
+      {error && <Error message={message} />}
 
       <form onSubmit={handleSubmit}>
         <SelectMonedas />
